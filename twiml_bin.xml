@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+TwiML para configurar no Twilio TwiML Bin
+URL: https://www.twilio.com/console/twiml-bins
+
+INSTRUÇÕES:
+1. Acesse https://www.twilio.com/console/twiml-bins
+2. Clique em "Create new TwiML Bin"
+3. Dê um nome (ex: "3CX Cold Calls")
+4. Cole o conteúdo abaixo
+5. Substitua SEU_NUMERO_3CX_AQUI pelo número de entrada do seu 3CX (formato E.164)
+6. Clique em "Create"
+7. Copie a URL gerada e configure na variável TWIML_BIN_URL
+-->
+
+<Response>
+    <Dial callerId="{{From}}" timeout="30">
+        <Number>SEU_NUMERO_3CX_AQUI</Number>
+    </Dial>
+</Response>
+
+<!--
+EXPLICAÇÃO DOS PARÂMETROS:
+
+callerId="{{From}}"
+  - Passa o número original do cliente para o 3CX
+  - O 3CX verá o número real de quem ligou, não o número Twilio
+
+timeout="30"
+  - Aguarda 30 segundos antes de considerar "sem resposta"
+  - Ajuste conforme necessário
+
+<Number>SEU_NUMERO_3CX_AQUI</Number>
+  - Substitua pelo número de entrada do 3CX
+  - Formato E.164: +5511XXXXXXXXX
+  - Exemplos: +551141234567 (SP), +552141234567 (RJ)
+-->
