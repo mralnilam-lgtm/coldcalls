@@ -121,14 +121,19 @@ class ColdCallManager:
         print(f"[{self._timestamp()}] 📞 Initiating call to {to_number}")
 
         try:
-            # Inicia a chamada
+            # Inicia a chamada com detecção de máquina/voicemail
             call = self.client.calls.create(
                 to=to_number,
                 from_=self.twilio_number,
                 url=self.twiml_bin_url,
                 timeout=60,
                 status_callback_method='GET',
-                status_callback_event=['completed']
+                status_callback_event=['completed'],
+                machine_detection='Enable',
+                machine_detection_timeout=5,
+                machine_detection_speech_threshold=2400,
+                machine_detection_speech_end_threshold=1200,
+                machine_detection_silence_timeout=5000
             )
 
             call_sid = call.sid

@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-TwiML para configurar no Twilio TwiML Bin
-URL: https://www.twilio.com/console/twiml-bins
+⚠️  ATENÇÃO: Este arquivo é apenas para referência.
+    Para filtrar chamadas de caixa postal, use a Twilio Function em twilio_function.js
 
-INSTRUÇÕES:
-1. Acesse https://www.twilio.com/console/twiml-bins
-2. Clique em "Create new TwiML Bin"
-3. Dê um nome (ex: "3CX Cold Calls")
-4. Cole o conteúdo abaixo
-5. Substitua SEU_NUMERO_3CX_AQUI pelo número de entrada do seu 3CX (formato E.164)
-6. Clique em "Create"
-7. Copie a URL gerada e configure na variável TWIML_BIN_URL
+TwiML BÁSICO (sem filtro de voicemail):
+- Transfere TODAS as chamadas, incluindo caixas postais
+- Use apenas para testes ou se não precisar filtrar voicemail
 -->
 
 <Response>
@@ -20,18 +15,33 @@ INSTRUÇÕES:
 </Response>
 
 <!--
-EXPLICAÇÃO DOS PARÂMETROS:
+IMPORTANTE: Para transferir apenas chamadas atendidas por HUMANOS:
 
-callerId="{{From}}"
-  - Passa o número original do cliente para o 3CX
-  - O 3CX verá o número real de quem ligou, não o número Twilio
+1. Use a Twilio Function (twilio_function.js) em vez deste TwiML Bin
+2. O script cold_calls.py já está configurado com Answering Machine Detection (AMD)
+3. A função verifica o parâmetro AnsweredBy e só transfere se for "human"
 
-timeout="30"
-  - Aguarda 30 segundos antes de considerar "sem resposta"
-  - Ajuste conforme necessário
+CONFIGURAÇÃO DA TWILIO FUNCTION:
+1. Acesse https://www.twilio.com/console/functions/overview
+2. Crie um novo Service
+3. Adicione uma Function com o código de twilio_function.js
+4. Configure a variável NUMERO_3CX nas Environment Variables
+5. Deploy e use a URL da função como TWIML_BIN_URL
 
-<Number>SEU_NUMERO_3CX_AQUI</Number>
-  - Substitua pelo número de entrada do 3CX
-  - Formato E.164: +5511XXXXXXXXX
-  - Exemplos: +551141234567 (SP), +552141234567 (RJ)
+EXPLICAÇÃO DOS PARÂMETROS AMD (em cold_calls.py):
+
+machine_detection='Enable'
+  - Ativa detecção de máquina/voicemail
+
+machine_detection_timeout=5
+  - Segundos para detectar (padrão: 30, reduzido para 5)
+
+machine_detection_speech_threshold=2400
+  - Milissegundos de fala para considerar máquina
+
+machine_detection_speech_end_threshold=1200
+  - Silêncio após fala para considerar fim da mensagem
+
+machine_detection_silence_timeout=5000
+  - Timeout de silêncio inicial
 -->
