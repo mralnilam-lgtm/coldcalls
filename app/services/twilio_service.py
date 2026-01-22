@@ -1,0 +1,190 @@
+"""
+Twilio Service - Refactored from cold_calls.py
+Handles call initiation, status polling, and machine detection
+"""
+import time
+import logging
+from datetime import datetime
+from typing import Optional
+
+from twilio.rest import Client
+
+from app.auth import decrypt_twilio_credentials
+from app.models import User
+
+logger = logging.getLogger(__name__)
+
+
+class TwilioService:
+    """Service for making Twilio calls with machine detection"""
+
+    def __init__(self, user: User):
+        """
+        Initialize Twilio client with user's encrypted credentials
+
+        Args:
+            user: User model with encrypted Twilio credentials
+        """
+        if not user.twilio_configured:
+            raise ValueError("User has not configured Twilio credentials")
+
+        self.account_sid = decrypt_twilio_credentials(user.twilio_account_sid_encrypted)
+        self.auth_token = decrypt_twilio_credentials(user.twilio_auth_token_encrypted)
+        self.client = Client(self.account_sid, self.auth_token)
+
+    def make_call(
+        self,
+        to_number: str,
+        from_number: str,
+        twiml_url: str,
+        timeout: int = 60
+    ) -> dict:
+        """
+        Initiate a call with machine detection enabled
+
+        Args:
+            to_number: Destination phone number (E.164 format)
+            from_number: Caller ID (E.164 format)
+            twiml_url: URL returning TwiML instructions
+            timeout: Ring timeout in seconds
+
+        Returns:
+            dict with 'call_sid' and 'status'
+        """
+        logger.info(f"Initiating call to {to_number} from {from_number}")
+
+        call = self.client.calls.create(
+            to=to_number,
+            from_=from_number,
+            url=twiml_url,
+            timeout=timeout,
+            # Machine detection parameters (same as cold_calls.py)
+            machine_detection='Enable',
+            machine_detection_timeout=5,
+            machine_detection_speech_threshold=2400,
+            machine_detection_speech_end_threshold=1200,
+            machine_detection_silence_timeout=5000
+        )
+
+        logger.info(f"Call initiated: SID={call.sid}, status={call.status}")
+
+        return {
+            'call_sid': call.sid,
+            'status': call.status
+        }
+
+    def poll_call_status(
+        self,
+        call_sid: str,
+        max_wait: int = 70,
+        poll_interval: int = 2
+    ) -> dict:
+        """
+        Poll call status until completion or timeout
+
+        Args:
+            call_sid: Twilio call SID
+            max_wait: Maximum wait time in seconds
+            poll_interval: Time between polls in seconds
+
+        Returns:
+            dict with 'status', 'duration', 'answered_by'
+        """
+        elapsed = 0
+        final_statuses = ['completed', 'failed', 'busy', 'no-answer', 'canceled']
+        last_status = None
+
+        while elapsed < max_wait:
+            try:
+                call = self.client.calls(call_sid).fetch()
+                current_status = call.status
+
+                if current_status != last_status:
+                    logger.debug(f"Call {call_sid}: status={current_status}")
+                    last_status = current_status
+
+                if current_status in final_statuses:
+                    return {
+                        'status': current_status,
+                        'duration': int(call.duration) if call.duration else 0,
+                        'answered_by': getattr(call, 'answered_by', None)
+                    }
+
+                time.sleep(poll_interval)
+                elapsed += poll_interval
+
+            except Exception as e:
+                logger.warning(f"Polling error for {call_sid}: {e}")
+                time.sleep(poll_interval)
+                elapsed += poll_interval
+
+        logger.warning(f"Polling timeout for call {call_sid}")
+        return {
+            'status': 'timeout',
+            'duration': 0,
+            'answered_by': None
+        }
+
+    def get_call_cost(self, call_sid: str) -> float:
+        """
+        Get the cost of a completed call
+
+        Args:
+            call_sid: Twilio call SID
+
+        Returns:
+            Cost in USD (positive number)
+        """
+        try:
+            call = self.client.calls(call_sid).fetch()
+            # Twilio returns price as negative string
+            price = float(call.price or 0)
+            return abs(price)
+        except Exception as e:
+            logger.error(f"Error getting call cost for {call_sid}: {e}")
+            return 0.0
+
+    def get_call_details(self, call_sid: str) -> Optional[dict]:
+        """
+        Get detailed information about a call
+
+        Args:
+            call_sid: Twilio call SID
+
+        Returns:
+            dict with call details or None
+        """
+        try:
+            call = self.client.calls(call_sid).fetch()
+            return {
+                'sid': call.sid,
+                'status': call.status,
+                'duration': int(call.duration) if call.duration else 0,
+                'price': abs(float(call.price or 0)),
+                'answered_by': getattr(call, 'answered_by', None),
+                'start_time': call.start_time,
+                'end_time': call.end_time
+            }
+        except Exception as e:
+            logger.error(f"Error fetching call details for {call_sid}: {e}")
+            return None
+
+
+def generate_twiml_url(audio_url: str, base_url: str = "") -> str:
+    """
+    Generate TwiML endpoint URL for playing audio
+
+    For now, we'll use a TwiML Bin or the audio URL directly.
+    In production, you'd have an endpoint that returns dynamic TwiML.
+
+    Args:
+        audio_url: URL of the audio file to play
+        base_url: Base URL of the application
+
+    Returns:
+        URL that returns TwiML
+    """
+    # For now, return the audio URL directly
+    # In production, you'd create a TwiML endpoint like:
+    # return f"{base_url}/api/twiml/{campaign_id}"
+    return audio_url
