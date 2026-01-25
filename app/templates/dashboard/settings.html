@@ -21,12 +21,6 @@
     </div>
     {% endif %}
 
-    {% if configure_twilio %}
-    <div class="mb-6 bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded">
-        Configure your Twilio credentials to create campaigns.
-    </div>
-    {% endif %}
-
     <!-- Account Info -->
     <div class="bg-white shadow rounded-lg mb-6">
         <div class="px-4 py-5 sm:px-6">
@@ -47,11 +41,11 @@
                     <dd class="mt-1 text-sm text-gray-900">{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</dd>
                 </div>
                 <div>
-                    <dt class="text-sm font-medium text-gray-500">Twilio Status</dt>
+                    <dt class="text-sm font-medium text-gray-500">Transfer Number</dt>
                     <dd class="mt-1 text-sm">
-                        {% if user.twilio_configured %}
+                        {% if user.transfer_number %}
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            Configured
+                            {{ user.transfer_number }}
                         </span>
                         {% else %}
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
@@ -64,48 +58,29 @@
         </div>
     </div>
 
-    <!-- Twilio Configuration -->
-    <div class="bg-white shadow rounded-lg" id="twilio">
+    <!-- Transfer Number Configuration -->
+    <div class="bg-white shadow rounded-lg" id="transfer">
         <div class="px-4 py-5 sm:px-6">
-            <h3 class="text-lg font-medium text-gray-900">Twilio Credentials</h3>
+            <h3 class="text-lg font-medium text-gray-900">Transfer Number (3CX)</h3>
             <p class="mt-1 text-sm text-gray-500">
-                Configure your Twilio credentials to make calls.
-                <a href="https://console.twilio.com" target="_blank" class="text-indigo-600 hover:text-indigo-500">
-                    Get your credentials from Twilio Console
-                </a>
+                Configure the number where calls will be transferred when answered by a human.
             </p>
         </div>
         <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
-            <form action="/dashboard/settings/twilio" method="POST" class="space-y-4">
+            <form action="/dashboard/settings/transfer" method="POST" class="space-y-4">
                 <div>
-                    <label for="account_sid" class="block text-sm font-medium text-gray-700">Account SID</label>
-                    <input type="text" name="account_sid" id="account_sid" required
-                        placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border px-3 py-2">
-                    <p class="mt-1 text-xs text-gray-500">Find your Account SID in Twilio Console</p>
-                </div>
-
-                <div>
-                    <label for="auth_token" class="block text-sm font-medium text-gray-700">Auth Token</label>
-                    <input type="password" name="auth_token" id="auth_token" required
-                        placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border px-3 py-2">
-                    <p class="mt-1 text-xs text-gray-500">Your Auth Token will be stored securely (encrypted)</p>
-                </div>
-
-                <div>
-                    <label for="transfer_number" class="block text-sm font-medium text-gray-700">Transfer Number (3CX)</label>
+                    <label for="transfer_number" class="block text-sm font-medium text-gray-700">Transfer Number</label>
                     <input type="text" name="transfer_number" id="transfer_number" required
                         placeholder="+15551234567"
                         value="{{ user.transfer_number or '' }}"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border px-3 py-2">
-                    <p class="mt-1 text-xs text-gray-500">Number to transfer calls when answered by a human (E.164 format)</p>
+                    <p class="mt-1 text-xs text-gray-500">E.164 format (e.g., +15551234567)</p>
                 </div>
 
                 <div class="pt-4">
                     <button type="submit"
                         class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        {% if user.twilio_configured %}Update Credentials{% else %}Save Credentials{% endif %}
+                        {% if user.transfer_number %}Update{% else %}Save{% endif %}
                     </button>
                 </div>
             </form>

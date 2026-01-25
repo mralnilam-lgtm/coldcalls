@@ -9,27 +9,24 @@ from typing import Optional
 
 from twilio.rest import Client
 
-from app.auth import decrypt_twilio_credentials
-from app.models import User
+from app.config import get_settings
 
 logger = logging.getLogger(__name__)
+settings = get_settings()
 
 
 class TwilioService:
     """Service for making Twilio calls with machine detection"""
 
-    def __init__(self, user: User):
+    def __init__(self):
         """
-        Initialize Twilio client with user's encrypted credentials
-
-        Args:
-            user: User model with encrypted Twilio credentials
+        Initialize Twilio client with global credentials from settings
         """
-        if not user.twilio_configured:
-            raise ValueError("User has not configured Twilio credentials")
+        if not settings.TWILIO_ACCOUNT_SID or not settings.TWILIO_AUTH_TOKEN:
+            raise ValueError("Twilio credentials not configured in environment")
 
-        self.account_sid = decrypt_twilio_credentials(user.twilio_account_sid_encrypted)
-        self.auth_token = decrypt_twilio_credentials(user.twilio_auth_token_encrypted)
+        self.account_sid = settings.TWILIO_ACCOUNT_SID
+        self.auth_token = settings.TWILIO_AUTH_TOKEN
         self.client = Client(self.account_sid, self.auth_token)
 
     def make_call(

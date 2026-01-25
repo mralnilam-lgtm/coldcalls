@@ -79,13 +79,17 @@ async def get_admin_user(
     return user
 
 
-async def require_twilio_configured(
+async def require_transfer_configured(
     user: User = Depends(get_current_user)
 ) -> User:
-    """Require user to have Twilio credentials configured"""
-    if not user.twilio_configured:
+    """Require user to have transfer number configured"""
+    if not user.transfer_number:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Please configure your Twilio credentials first"
+            detail="Please configure your Transfer Number (3CX) in Settings first"
         )
     return user
+
+
+# Alias for backwards compatibility
+require_twilio_configured = require_transfer_configured

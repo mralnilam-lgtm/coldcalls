@@ -50,11 +50,6 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     credits = Column(Float, default=0.0)
 
-    # Encrypted Twilio credentials (per-user)
-    twilio_account_sid_encrypted = Column(Text, nullable=True)
-    twilio_auth_token_encrypted = Column(Text, nullable=True)
-    twilio_configured = Column(Boolean, default=False)
-
     # Transfer number (3CX) for call transfers
     transfer_number = Column(String(20), nullable=True)
 

@@ -65,16 +65,16 @@ class CampaignWorker:
             self.db.commit()
             return
 
-        # Check user has Twilio configured
-        if not user.twilio_configured:
-            logger.warning(f"Campaign {campaign.id}: User Twilio not configured, pausing")
+        # Check user has transfer number configured
+        if not user.transfer_number:
+            logger.warning(f"Campaign {campaign.id}: User transfer number not configured, pausing")
             campaign.status = CampaignStatus.PAUSED
             self.db.commit()
             return
 
-        # Initialize Twilio service for this user
+        # Initialize Twilio service (uses global credentials)
         try:
-            twilio_service = TwilioService(user)
+            twilio_service = TwilioService()
         except Exception as e:
             logger.error(f"Campaign {campaign.id}: Failed to init Twilio: {e}")
             campaign.status = CampaignStatus.PAUSED
