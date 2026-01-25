@@ -77,10 +77,29 @@ async def save_twilio_credentials(
     request: Request,
     account_sid: str = Form(...),
     auth_token: str = Form(...),
+    transfer_number: str = Form(...),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Save Twilio credentials"""
+    """Save Twilio credentials and transfer number"""
+    import re
+    E164_PATTERN = re.compile(r'^\+[1-9]\d{1,14}$')
+
+    # Validate transfer number
+    transfer_number = transfer_number.strip()
+    if not E164_PATTERN.match(transfer_number):
+        return templates.TemplateResponse(
+            "dashboard/settings.html",
+            {
+                "request": request,
+                "user": user,
+                "saved": False,
+                "configure_twilio": False,
+                "error": "Invalid transfer number. Use E.164 format (e.g., +15551234567)"
+            },
+            status_code=400
+        )
+
     # Validate credentials by making a test API call
     try:
         client = TwilioClient(account_sid, auth_token)
@@ -101,6 +120,7 @@ async def save_twilio_credentials(
     # Encrypt and store
     user.twilio_account_sid_encrypted = encrypt_twilio_credentials(account_sid)
     user.twilio_auth_token_encrypted = encrypt_twilio_credentials(auth_token)
+    user.transfer_number = transfer_number
     user.twilio_configured = True
     db.commit()
 

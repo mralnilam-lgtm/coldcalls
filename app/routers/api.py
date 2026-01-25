@@ -47,13 +47,21 @@ async def twiml_handler(
         twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Hangup/></Response>'
         return Response(content=twiml, media_type="application/xml")
 
+    # Get transfer number from user settings
+    transfer_number = campaign.user.transfer_number
+
+    if not transfer_number:
+        # No transfer number configured - hang up
+        twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Hangup/></Response>'
+        return Response(content=twiml, media_type="application/xml")
+
     # Check if answered by human
     if answered_by == "human":
         # Transfer to 3CX number, preserving the original caller ID
         twiml = f'''<?xml version="1.0" encoding="UTF-8"?>
 <Response>
     <Dial callerId="{campaign.caller_id.phone_number}" timeout="30">
-        <Number>{campaign.transfer_number}</Number>
+        <Number>{transfer_number}</Number>
     </Dial>
 </Response>'''
     else:
@@ -79,12 +87,19 @@ async def twiml_play_audio(
         twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Hangup/></Response>'
         return Response(content=twiml, media_type="application/xml")
 
+    # Get transfer number from user settings
+    transfer_number = campaign.user.transfer_number
+
+    if not transfer_number:
+        twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Hangup/></Response>'
+        return Response(content=twiml, media_type="application/xml")
+
     # Play audio then transfer if human
     twiml = f'''<?xml version="1.0" encoding="UTF-8"?>
 <Response>
     <Play>{campaign.audio.r2_url}</Play>
     <Dial callerId="{campaign.caller_id.phone_number}" timeout="30">
-        <Number>{campaign.transfer_number}</Number>
+        <Number>{transfer_number}</Number>
     </Dial>
 </Response>'''
 
