@@ -9,7 +9,7 @@
         <p class="text-gray-500">Welcome, {{ user.email }}</p>
     </div>
 
-    {% if not stats.twilio_configured %}
+    {% if not stats.transfer_configured %}
     <div class="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
         <div class="flex">
             <div class="flex-shrink-0">
@@ -18,10 +18,10 @@
                 </svg>
             </div>
             <div class="ml-3">
-                <h3 class="text-sm font-medium text-yellow-800">Configure your Twilio credentials</h3>
+                <h3 class="text-sm font-medium text-yellow-800">Configure your Transfer Number</h3>
                 <p class="mt-1 text-sm text-yellow-700">
-                    To create campaigns, you need to configure your Twilio credentials.
-                    <a href="/dashboard/settings?configure_twilio=true" class="font-medium underline">Configure now</a>
+                    To create campaigns, you need to configure your transfer number (3CX).
+                    <a href="/dashboard/settings" class="font-medium underline">Configure now</a>
                 </p>
             </div>
         </div>
@@ -121,7 +121,7 @@
     <div class="mb-8">
         <h2 class="text-lg font-medium text-gray-900 mb-4">Quick Actions</h2>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <a href="/campaigns/create" class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-indigo-500 hover:ring-1 hover:ring-indigo-500 {% if not stats.twilio_configured %}opacity-50 pointer-events-none{% endif %}">
+            <a href="/campaigns/create" class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-indigo-500 hover:ring-1 hover:ring-indigo-500 {% if not stats.transfer_configured %}opacity-50 pointer-events-none{% endif %}">
                 <div class="flex items-center space-x-3">
                     <svg class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>

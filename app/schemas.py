@@ -23,8 +23,7 @@ class UserLogin(UserBase):
 
 
 class UserUpdate(BaseModel):
-    twilio_account_sid: Optional[str] = None
-    twilio_auth_token: Optional[str] = None
+    transfer_number: Optional[str] = None
 
 
 class UserResponse(UserBase):
@@ -32,10 +31,17 @@ class UserResponse(UserBase):
     is_admin: bool
     is_active: bool
     credits: float
-    twilio_configured: bool
+    transfer_number: Optional[str]
+    transfer_configured: bool = False
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+    def __init__(self, **data):
+        # Compute transfer_configured from transfer_number
+        if 'transfer_number' in data:
+            data['transfer_configured'] = bool(data['transfer_number'])
+        super().__init__(**data)
 
 
 class UserProfile(UserResponse):
