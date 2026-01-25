@@ -7,12 +7,12 @@
     <div class="max-w-md w-full space-y-8">
         <div>
             <h1 class="text-center text-3xl font-extrabold text-gray-900">ColdCalls Platform</h1>
-            <h2 class="mt-6 text-center text-xl text-gray-600">Entre na sua conta</h2>
+            <h2 class="mt-6 text-center text-xl text-gray-600">Sign in to your account</h2>
         </div>
 
         {% if registered %}
         <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
-            Conta criada com sucesso! Faca login para continuar.
+            Account created successfully! Please login to continue.
         </div>
         {% endif %}
 
@@ -31,23 +31,23 @@
                         placeholder="Email">
                 </div>
                 <div>
-                    <label for="password" class="sr-only">Senha</label>
+                    <label for="password" class="sr-only">Password</label>
                     <input id="password" name="password" type="password" required
                         class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                        placeholder="Senha">
+                        placeholder="Password">
                 </div>
             </div>
 
             <div>
                 <button type="submit"
                     class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Entrar
+                    Sign In
                 </button>
             </div>
 
             <div class="text-center">
                 <a href="/auth/register" class="text-indigo-600 hover:text-indigo-500 text-sm">
-                    Nao tem conta? Registre-se
+                    Don't have an account? Register here
                 </a>
             </div>
         </form>

@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 
-{% block title %}Paises - Admin{% endblock %}
+{% block title %}Countries - Admin{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="mb-8 flex justify-between items-center">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900">Paises</h1>
-            <p class="text-gray-500">Configure os paises e precos por minuto</p>
+            <h1 class="text-2xl font-bold text-gray-900">Countries</h1>
+            <p class="text-gray-500">Configure countries and prices per minute</p>
         </div>
         <div class="flex space-x-3">
-            <a href="/admin" class="text-sm text-gray-500 hover:text-gray-700">Voltar</a>
+            <a href="/admin" class="text-sm text-gray-500 hover:text-gray-700">Back</a>
             <a href="/admin/countries/create" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
-                Adicionar Pais
+                Add Country
             </a>
         </div>
     </div>
@@ -22,11 +22,11 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Codigo</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preco/min</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price/min</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th scope="col" class="relative px-6 py-3"><span class="sr-only">Acoes</span></th>
+                    <th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -37,13 +37,13 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${{ "%.3f"|format(country.price_per_minute) }}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         {% if country.is_active %}
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Ativo</span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>
                         {% else %}
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Inativo</span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Inactive</span>
                         {% endif %}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <a href="/admin/countries/{{ country.id }}/edit" class="text-indigo-600 hover:text-indigo-900">Editar</a>
+                        <a href="/admin/countries/{{ country.id }}/edit" class="text-indigo-600 hover:text-indigo-900">Edit</a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -51,8 +51,8 @@
         </table>
         {% else %}
         <div class="px-4 py-12 text-center text-gray-500">
-            <p>Nenhum pais cadastrado.</p>
-            <a href="/admin/countries/create" class="mt-2 inline-block text-indigo-600 hover:text-indigo-500">Adicionar primeiro</a>
+            <p>No countries registered.</p>
+            <a href="/admin/countries/create" class="mt-2 inline-block text-indigo-600 hover:text-indigo-500">Add first</a>
         </div>
         {% endif %}
     </div>

@@ -23,7 +23,7 @@
                     {{ campaign.status.value }}
                 </span>
             </div>
-            <p class="text-gray-500 mt-1">Criada em {{ campaign.created_at.strftime('%d/%m/%Y %H:%M') }}</p>
+            <p class="text-gray-500 mt-1">Created on {{ campaign.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
         </div>
         <div class="flex space-x-3">
             {% if campaign.status.value == 'draft' or campaign.status.value == 'paused' %}
@@ -33,7 +33,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    Iniciar
+                    Start
                 </button>
             </form>
             {% endif %}
@@ -43,14 +43,14 @@
                     <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    Pausar
+                    Pause
                 </button>
             </form>
             {% endif %}
             {% if campaign.status.value != 'completed' and campaign.status.value != 'cancelled' %}
-            <form action="/campaigns/{{ campaign.id }}/cancel" method="POST" onsubmit="return confirm('Tem certeza que deseja cancelar esta campanha?')">
+            <form action="/campaigns/{{ campaign.id }}/cancel" method="POST" onsubmit="return confirm('Are you sure you want to cancel this campaign?')">
                 <button type="submit" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50">
-                    Cancelar Campanha
+                    Cancel Campaign
                 </button>
             </form>
             {% endif %}
@@ -64,7 +64,7 @@
                 <div class="flex items-center">
                     <div class="w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Progresso</dt>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Progress</dt>
                             <dd class="flex items-baseline">
                                 <div class="text-2xl font-semibold text-gray-900" x-text="progress.progress_percent.toFixed(1) + '%'">{{ campaign.progress_percent|round(1) }}%</div>
                             </dd>
@@ -80,7 +80,7 @@
         <div class="bg-white overflow-hidden shadow rounded-lg">
             <div class="p-5">
                 <dl>
-                    <dt class="text-sm font-medium text-gray-500 truncate">Processados</dt>
+                    <dt class="text-sm font-medium text-gray-500 truncate">Processed</dt>
                     <dd class="mt-1 text-2xl font-semibold text-gray-900">
                         <span x-text="progress.processed">{{ campaign.processed_numbers }}</span> / <span x-text="progress.total">{{ campaign.total_numbers }}</span>
                     </dd>
@@ -91,7 +91,7 @@
         <div class="bg-white overflow-hidden shadow rounded-lg">
             <div class="p-5">
                 <dl>
-                    <dt class="text-sm font-medium text-gray-500 truncate">Sucesso / Falha</dt>
+                    <dt class="text-sm font-medium text-gray-500 truncate">Success / Failed</dt>
                     <dd class="mt-1 text-2xl font-semibold">
                         <span class="text-green-600" x-text="progress.successful">{{ campaign.successful_calls }}</span>
                         /
@@ -104,7 +104,7 @@
         <div class="bg-white overflow-hidden shadow rounded-lg">
             <div class="p-5">
                 <dl>
-                    <dt class="text-sm font-medium text-gray-500 truncate">Custo Total</dt>
+                    <dt class="text-sm font-medium text-gray-500 truncate">Total Cost</dt>
                     <dd class="mt-1 text-2xl font-semibold text-gray-900" x-text="'$' + progress.cost.toFixed(2)">${{ "%.2f"|format(campaign.total_cost) }}</dd>
                 </dl>
             </div>
@@ -115,16 +115,16 @@
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 mb-8">
         <div class="bg-white shadow rounded-lg">
             <div class="px-4 py-5 sm:px-6">
-                <h3 class="text-lg font-medium text-gray-900">Configuracao</h3>
+                <h3 class="text-lg font-medium text-gray-900">Configuration</h3>
             </div>
             <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
                 <dl class="space-y-3">
                     <div>
-                        <dt class="text-sm font-medium text-gray-500">Pais</dt>
+                        <dt class="text-sm font-medium text-gray-500">Country</dt>
                         <dd class="text-sm text-gray-900">{{ campaign.country.name }} ({{ campaign.country.code }})</dd>
                     </div>
                     <div>
-                        <dt class="text-sm font-medium text-gray-500">Preco por minuto</dt>
+                        <dt class="text-sm font-medium text-gray-500">Price per minute</dt>
                         <dd class="text-sm text-gray-900">${{ "%.3f"|format(campaign.country.price_per_minute) }}</dd>
                     </div>
                     <div>
@@ -135,22 +135,26 @@
                         <dt class="text-sm font-medium text-gray-500">Audio</dt>
                         <dd class="text-sm text-gray-900">{{ campaign.audio.name }}</dd>
                     </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Transfer to (3CX)</dt>
+                        <dd class="text-sm text-gray-900 font-mono">{{ campaign.transfer_number }}</dd>
+                    </div>
                 </dl>
             </div>
         </div>
 
         <div class="lg:col-span-2 bg-white shadow rounded-lg">
             <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
-                <h3 class="text-lg font-medium text-gray-900">Numeros ({{ numbers|length }})</h3>
+                <h3 class="text-lg font-medium text-gray-900">Numbers ({{ numbers|length }})</h3>
             </div>
             <div class="border-t border-gray-200 max-h-96 overflow-y-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50 sticky top-0">
                         <tr>
-                            <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Numero</th>
+                            <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Number</th>
                             <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                            <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Duracao</th>
-                            <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Custo</th>
+                            <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Duration</th>
+                            <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Cost</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">

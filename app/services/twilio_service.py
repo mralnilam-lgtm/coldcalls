@@ -170,21 +170,18 @@ class TwilioService:
             return None
 
 
-def generate_twiml_url(audio_url: str, base_url: str = "") -> str:
+def generate_twiml_url(campaign_id: int, base_url: str) -> str:
     """
-    Generate TwiML endpoint URL for playing audio
+    Generate TwiML endpoint URL for a campaign
 
-    For now, we'll use a TwiML Bin or the audio URL directly.
-    In production, you'd have an endpoint that returns dynamic TwiML.
+    This URL is called by Twilio when the call connects.
+    It handles machine detection and transfers to 3CX if human.
 
     Args:
-        audio_url: URL of the audio file to play
-        base_url: Base URL of the application
+        campaign_id: Campaign ID
+        base_url: Base URL of the application (e.g., https://yourdomain.com)
 
     Returns:
-        URL that returns TwiML
+        URL to the TwiML endpoint
     """
-    # For now, return the audio URL directly
-    # In production, you'd create a TwiML endpoint like:
-    # return f"{base_url}/api/twiml/{campaign_id}"
-    return audio_url
+    return f"{base_url}/api/twiml/{campaign_id}"

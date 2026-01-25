@@ -126,6 +126,7 @@ class Campaign(Base):
     caller_id_id = Column(Integer, ForeignKey("caller_ids.id"), nullable=False)
     country_id = Column(Integer, ForeignKey("countries.id"), nullable=False)
     audio_id = Column(Integer, ForeignKey("audios.id"), nullable=False)
+    transfer_number = Column(String(20), nullable=False)  # Numero 3CX para transferencia
     status = Column(Enum(CampaignStatus), default=CampaignStatus.DRAFT, index=True)
 
     # Progress tracking

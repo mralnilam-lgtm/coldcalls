@@ -5,8 +5,8 @@
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="mb-8">
-        <h1 class="text-2xl font-bold text-gray-900">Painel Administrativo</h1>
-        <p class="text-gray-500">Gerencie a plataforma</p>
+        <h1 class="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+        <p class="text-gray-500">Manage the platform</p>
     </div>
 
     <!-- Stats -->
@@ -21,14 +21,14 @@
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Usuarios</dt>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Users</dt>
                             <dd class="text-lg font-semibold text-gray-900">{{ stats.total_users }}</dd>
                         </dl>
                     </div>
                 </div>
             </div>
             <div class="bg-gray-50 px-5 py-3">
-                <a href="/admin/users" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">Ver todos</a>
+                <a href="/admin/users" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">View all</a>
             </div>
         </div>
 
@@ -42,7 +42,7 @@
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Campanhas</dt>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Campaigns</dt>
                             <dd class="text-lg font-semibold text-gray-900">{{ stats.total_campaigns }}</dd>
                         </dl>
                     </div>
@@ -60,7 +60,7 @@
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Pagamentos Pendentes</dt>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Pending Payments</dt>
                             <dd class="text-lg font-semibold text-gray-900">{{ stats.pending_payments }}</dd>
                         </dl>
                     </div>
@@ -70,7 +70,7 @@
     </div>
 
     <!-- Quick Links -->
-    <h2 class="text-lg font-medium text-gray-900 mb-4">Gerenciamento</h2>
+    <h2 class="text-lg font-medium text-gray-900 mb-4">Management</h2>
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <a href="/admin/caller-ids" class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-indigo-500 hover:ring-1 hover:ring-indigo-500">
             <div class="flex items-center space-x-3">
@@ -79,7 +79,7 @@
                 </svg>
                 <div>
                     <span class="text-gray-900 font-medium">Caller IDs</span>
-                    <p class="text-sm text-gray-500">{{ stats.active_caller_ids }} ativos</p>
+                    <p class="text-sm text-gray-500">{{ stats.active_caller_ids }} active</p>
                 </div>
             </div>
         </a>
@@ -90,8 +90,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
                 <div>
-                    <span class="text-gray-900 font-medium">Paises</span>
-                    <p class="text-sm text-gray-500">{{ stats.total_countries }} ativos</p>
+                    <span class="text-gray-900 font-medium">Countries</span>
+                    <p class="text-sm text-gray-500">{{ stats.total_countries }} active</p>
                 </div>
             </div>
         </a>
@@ -103,7 +103,7 @@
                 </svg>
                 <div>
                     <span class="text-gray-900 font-medium">Audios</span>
-                    <p class="text-sm text-gray-500">{{ stats.total_audios }} ativos</p>
+                    <p class="text-sm text-gray-500">{{ stats.total_audios }} active</p>
                 </div>
             </div>
         </a>
@@ -114,8 +114,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
                 </svg>
                 <div>
-                    <span class="text-gray-900 font-medium">Usuarios</span>
-                    <p class="text-sm text-gray-500">{{ stats.total_users }} registrados</p>
+                    <span class="text-gray-900 font-medium">Users</span>
+                    <p class="text-sm text-gray-500">{{ stats.total_users }} registered</p>
                 </div>
             </div>
         </a>

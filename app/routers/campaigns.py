@@ -81,12 +81,33 @@ async def create_campaign(
     caller_id_id: int = Form(...),
     country_id: int = Form(...),
     audio_id: int = Form(...),
+    transfer_number: str = Form(...),
     numbers_text: str = Form(default=""),
     numbers_file: Optional[UploadFile] = File(default=None),
     user: User = Depends(require_twilio_configured),
     db: Session = Depends(get_db)
 ):
     """Create a new campaign"""
+    # Validate transfer number (3CX)
+    transfer_number = transfer_number.strip()
+    if not validate_phone_number(transfer_number):
+        caller_ids = db.query(CallerID).filter(CallerID.is_active == True).all()
+        countries = db.query(Country).filter(Country.is_active == True).all()
+        audios = db.query(Audio).filter(Audio.is_active == True).all()
+
+        return templates.TemplateResponse(
+            "campaigns/create.html",
+            {
+                "request": request,
+                "user": user,
+                "caller_ids": caller_ids,
+                "countries": countries,
+                "audios": audios,
+                "error": "Numero de transferencia (3CX) invalido. Use formato E.164 (ex: +5511999999999)"
+            },
+            status_code=400
+        )
+
     # Parse numbers from text or file
     numbers_raw = numbers_text
 
@@ -147,6 +168,7 @@ async def create_campaign(
         caller_id_id=caller_id_id,
         country_id=country_id,
         audio_id=audio_id,
+        transfer_number=transfer_number,
         status=CampaignStatus.DRAFT,
         total_numbers=len(valid_numbers)
     )

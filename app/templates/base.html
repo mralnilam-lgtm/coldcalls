@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,10 +26,10 @@
                             Dashboard
                         </a>
                         <a href="/campaigns" class="{% if '/campaigns' in request.url.path %}border-indigo-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Campanhas
+                            Campaigns
                         </a>
                         <a href="/payments" class="{% if '/payments' in request.url.path %}border-indigo-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Pagamentos
+                            Payments
                         </a>
                         {% if user.is_admin %}
                         <a href="/admin" class="{% if '/admin' in request.url.path %}border-indigo-500 text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
@@ -50,8 +50,8 @@
                             </svg>
                         </button>
                         <div x-show="open" @click.away="open = false" x-cloak class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-                            <a href="/dashboard/settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Configuracoes</a>
-                            <a href="/auth/logout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sair</a>
+                            <a href="/dashboard/settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
+                            <a href="/auth/logout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
                         </div>
                     </div>
                 </div>
@@ -70,13 +70,13 @@
         <div x-show="mobileOpen" x-cloak class="sm:hidden">
             <div class="pt-2 pb-3 space-y-1">
                 <a href="/dashboard" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50">Dashboard</a>
-                <a href="/campaigns" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50">Campanhas</a>
-                <a href="/payments" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50">Pagamentos</a>
+                <a href="/campaigns" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50">Campaigns</a>
+                <a href="/payments" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50">Payments</a>
                 {% if user.is_admin %}
                 <a href="/admin" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50">Admin</a>
                 {% endif %}
-                <a href="/dashboard/settings" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50">Configuracoes</a>
-                <a href="/auth/logout" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50">Sair</a>
+                <a href="/dashboard/settings" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50">Settings</a>
+                <a href="/auth/logout" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50">Logout</a>
             </div>
         </div>
     </nav>

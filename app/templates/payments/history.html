@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}Historico de Pagamentos - ColdCalls Platform{% endblock %}
+{% block title %}Payment History - ColdCalls Platform{% endblock %}
 
 {% block content %}
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="mb-8">
-        <h1 class="text-2xl font-bold text-gray-900">Historico de Pagamentos</h1>
+        <h1 class="text-2xl font-bold text-gray-900">Payment History</h1>
     </div>
 
     <div class="bg-white shadow rounded-lg">
@@ -14,16 +14,16 @@
             <thead class="bg-gray-50">
                 <tr>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Data
+                        Date
                     </th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         TX Hash
                     </th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Valor USDT
+                        USDT Amount
                     </th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Creditos
+                        Credits
                     </th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Status
@@ -34,7 +34,7 @@
                 {% for payment in payments %}
                 <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ payment.created_at.strftime('%d/%m/%Y %H:%M') }}
+                        {{ payment.created_at.strftime('%Y-%m-%d %H:%M') }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
                         <a href="https://etherscan.io/tx/{{ payment.tx_hash }}" target="_blank" class="text-indigo-600 hover:text-indigo-500">
@@ -62,7 +62,7 @@
         </table>
         {% else %}
         <div class="px-4 py-12 text-center text-gray-500">
-            <p>Nenhum pagamento registrado.</p>
+            <p>No payments recorded.</p>
         </div>
         {% endif %}
     </div>
