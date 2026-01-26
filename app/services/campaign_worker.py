@@ -9,15 +9,12 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
-from app.config import get_settings
 from app.database import SessionLocal
 from app.models import (
     Campaign, CampaignNumber, User,
     CampaignStatus, CallStatus
 )
-from app.services.twilio_service import TwilioService, generate_twiml_url
-
-settings = get_settings()
+from app.services.twilio_service import TwilioService
 
 # Configure logging
 logging.basicConfig(
@@ -146,15 +143,12 @@ class CampaignWorker:
         self.db.flush()
 
         try:
-            # Generate TwiML URL - this endpoint handles machine detection and transfer
-            twiml_url = generate_twiml_url(campaign.id, settings.BASE_URL)
-
-            # Make the call with machine detection
-            # Twilio will call our TwiML endpoint with AnsweredBy parameter
+            # Make the call with inline TwiML (plays audio then transfers)
             call_result = twilio_service.make_call(
                 to_number=number.phone_number,
                 from_number=caller_id.phone_number,
-                twiml_url=twiml_url
+                audio_url=audio.r2_url,
+                transfer_number=user.transfer_number
             )
 
             number.call_sid = call_result['call_sid']

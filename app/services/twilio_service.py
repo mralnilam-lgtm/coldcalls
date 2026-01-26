@@ -4,7 +4,6 @@ Handles call initiation, status polling, and machine detection
 """
 import time
 import logging
-from datetime import datetime
 from typing import Optional
 
 from twilio.rest import Client
@@ -33,7 +32,8 @@ class TwilioService:
         self,
         to_number: str,
         from_number: str,
-        twiml_url: str,
+        audio_url: str,
+        transfer_number: str,
         timeout: int = 60
     ) -> dict:
         """
@@ -42,7 +42,8 @@ class TwilioService:
         Args:
             to_number: Destination phone number (E.164 format)
             from_number: Caller ID (E.164 format)
-            twiml_url: URL returning TwiML instructions
+            audio_url: URL of the audio file to play
+            transfer_number: Number to transfer to (3CX)
             timeout: Ring timeout in seconds
 
         Returns:
@@ -50,10 +51,18 @@ class TwilioService:
         """
         logger.info(f"Initiating call to {to_number} from {from_number}")
 
+        # Build TwiML inline - plays audio then transfers
+        twiml = f'''<Response>
+            <Play>{audio_url}</Play>
+            <Dial callerId="{from_number}" timeout="30">
+                <Number>{transfer_number}</Number>
+            </Dial>
+        </Response>'''
+
         call = self.client.calls.create(
             to=to_number,
             from_=from_number,
-            url=twiml_url,
+            twiml=twiml,
             timeout=timeout,
             # Machine detection parameters (same as cold_calls.py)
             machine_detection='Enable',
@@ -167,18 +176,3 @@ class TwilioService:
             return None
 
 
-def generate_twiml_url(campaign_id: int, base_url: str) -> str:
-    """
-    Generate TwiML endpoint URL for a campaign
-
-    This URL is called by Twilio when the call connects.
-    It handles machine detection and transfers to 3CX if human.
-
-    Args:
-        campaign_id: Campaign ID
-        base_url: Base URL of the application (e.g., https://yourdomain.com)
-
-    Returns:
-        URL to the TwiML endpoint
-    """
-    return f"{base_url}/api/twiml/{campaign_id}"
