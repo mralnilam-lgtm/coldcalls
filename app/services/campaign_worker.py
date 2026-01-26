@@ -89,12 +89,6 @@ class CampaignWorker:
             campaign.status = CampaignStatus.COMPLETED
             campaign.completed_at = datetime.utcnow()
 
-            # Return unused reserved credits
-            if campaign.reserved_credits > campaign.total_cost:
-                refund = campaign.reserved_credits - campaign.total_cost
-                user.credits += refund
-                campaign.reserved_credits = campaign.total_cost
-
             self.db.commit()
             logger.info(f"Campaign {campaign.id} completed")
             return

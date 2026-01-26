@@ -296,12 +296,6 @@ async def cancel_campaign(
     if campaign.status == CampaignStatus.COMPLETED:
         raise HTTPException(status_code=400, detail="Campaign is already completed")
 
-    # Return reserved credits (minus what was spent)
-    if campaign.reserved_credits > campaign.total_cost:
-        refund = campaign.reserved_credits - campaign.total_cost
-        user.credits += refund
-        campaign.reserved_credits = campaign.total_cost
-
     campaign.status = CampaignStatus.CANCELLED
     campaign.completed_at = datetime.utcnow()
     db.commit()
