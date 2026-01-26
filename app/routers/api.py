@@ -1,6 +1,7 @@
 """
 API Router - JSON endpoints for AJAX calls and TwiML
 """
+import logging
 from fastapi import APIRouter, Depends, HTTPException, Request, Form
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
@@ -10,12 +11,15 @@ from app.dependencies import get_current_user
 from app.models import User, Campaign, CampaignNumber, CallerID, Country, Audio, CampaignStatus
 from app.schemas import DashboardStats, CampaignProgress, DropdownCallerID, DropdownCountry, DropdownAudio
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/api", tags=["api"])
 
 
 # ============== TwiML Endpoint ==============
 
 @router.post("/twiml/{campaign_id}")
+@router.get("/twiml/{campaign_id}")
 async def twiml_handler(
     campaign_id: int,
     request: Request,
@@ -25,7 +29,7 @@ async def twiml_handler(
     Dynamic TwiML endpoint for handling calls with machine detection.
 
     Twilio calls this URL when the call is answered.
-    - If human: Transfer to the campaign's 3CX number
+    - If human: Play audio, then transfer to 3CX number
     - If machine: Hang up
 
     Twilio sends AnsweredBy parameter:
@@ -34,10 +38,12 @@ async def twiml_handler(
     - fax
     - unknown
     """
-    # Parse form data from Twilio
-    form_data = await request.form()
-    answered_by = form_data.get("AnsweredBy", "unknown")
-    caller_id = form_data.get("From", "")  # Original caller ID (the number we called)
+    # Parse form data from Twilio (POST) or query params (GET)
+    if request.method == "POST":
+        form_data = await request.form()
+        answered_by = form_data.get("AnsweredBy", "")
+    else:
+        answered_by = request.query_params.get("AnsweredBy", "")
 
     # Get campaign
     campaign = db.query(Campaign).filter(Campaign.id == campaign_id).first()
@@ -55,49 +61,22 @@ async def twiml_handler(
         twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Hangup/></Response>'
         return Response(content=twiml, media_type="application/xml")
 
-    # Check if answered by human
-    if answered_by == "human":
-        # Transfer to 3CX number, preserving the original caller ID
+    # Log the request for debugging
+    logger.info(f"TwiML request for campaign {campaign_id}: AnsweredBy={answered_by}")
+
+    # Check if answered by machine (any machine_* value)
+    if answered_by.startswith("machine") or answered_by == "fax":
+        # Machine/voicemail/fax detected - hang up
+        logger.info(f"Campaign {campaign_id}: Machine detected ({answered_by}), hanging up")
+        twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Hangup/></Response>'
+    else:
+        # Human answered (or unknown - treat as human to not miss calls)
+        # Play the campaign audio, then transfer to 3CX
+        audio_url = campaign.audio.r2_url
+        logger.info(f"Campaign {campaign_id}: Human/unknown ({answered_by}), playing audio and transferring to {transfer_number}")
         twiml = f'''<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-    <Dial callerId="{campaign.caller_id.phone_number}" timeout="30">
-        <Number>{transfer_number}</Number>
-    </Dial>
-</Response>'''
-    else:
-        # Machine/voicemail detected - hang up
-        twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Hangup/></Response>'
-
-    return Response(content=twiml, media_type="application/xml")
-
-
-@router.post("/twiml/{campaign_id}/play")
-async def twiml_play_audio(
-    campaign_id: int,
-    db: Session = Depends(get_db)
-):
-    """
-    TwiML endpoint that plays the campaign audio.
-    Used as the initial URL when making the call.
-    After playing, Twilio will check AnsweredBy and call the main handler.
-    """
-    campaign = db.query(Campaign).filter(Campaign.id == campaign_id).first()
-
-    if not campaign:
-        twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Hangup/></Response>'
-        return Response(content=twiml, media_type="application/xml")
-
-    # Get transfer number from user settings
-    transfer_number = campaign.user.transfer_number
-
-    if not transfer_number:
-        twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Hangup/></Response>'
-        return Response(content=twiml, media_type="application/xml")
-
-    # Play audio then transfer if human
-    twiml = f'''<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-    <Play>{campaign.audio.r2_url}</Play>
+    <Play>{audio_url}</Play>
     <Dial callerId="{campaign.caller_id.phone_number}" timeout="30">
         <Number>{transfer_number}</Number>
     </Dial>
