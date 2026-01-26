@@ -197,9 +197,11 @@ class CampaignWorker:
             )
 
         except Exception as e:
+            import traceback
             logger.error(f"Error calling {number.phone_number}: {e}")
+            logger.error(f"Traceback: {traceback.format_exc()}")
             number.status = CallStatus.FAILED
-            number.error_message = str(e)
+            number.error_message = str(e)[:500]  # Limit error message length
             number.processed_at = datetime.utcnow()
             campaign.processed_numbers += 1
             campaign.failed_calls += 1
