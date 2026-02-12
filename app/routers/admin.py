@@ -1,6 +1,7 @@
 """
 Admin Router - Management of CallerIDs, Countries, Audios
 """
+from urllib.parse import quote
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Form, Request, UploadFile, File, HTTPException
@@ -8,13 +9,16 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
+from app.auth import hash_password
+from app.config import get_settings
 from app.database import get_db
 from app.dependencies import get_admin_user
-from app.models import User, CallerID, Country, Audio, Campaign, Payment
+from app.models import User, CallerID, Country, Audio, Campaign, Payment, PaymentStatus
 from app.services.r2_service import r2_service
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 templates = Jinja2Templates(directory="app/templates")
+settings = get_settings()
 
 
 @router.get("", response_class=HTMLResponse)
@@ -30,7 +34,7 @@ async def admin_dashboard(
         "active_caller_ids": db.query(CallerID).filter(CallerID.is_active == True).count(),
         "total_audios": db.query(Audio).filter(Audio.is_active == True).count(),
         "total_countries": db.query(Country).filter(Country.is_active == True).count(),
-        "pending_payments": db.query(Payment).filter(Payment.status == "pending").count()
+        "pending_payments": db.query(Payment).filter(Payment.status == PaymentStatus.PENDING).count()
     }
 
     return templates.TemplateResponse(
@@ -419,6 +423,8 @@ async def delete_audio(
 @router.get("/users", response_class=HTMLResponse)
 async def list_users(
     request: Request,
+    created: bool = False,
+    error: Optional[str] = None,
     user: User = Depends(get_admin_user),
     db: Session = Depends(get_db)
 ):
@@ -430,9 +436,55 @@ async def list_users(
         {
             "request": request,
             "user": user,
-            "users": users
+            "users": users,
+            "created": created,
+            "error": error
         }
     )
+
+
+@router.post("/users/create")
+async def create_user(
+    email: str = Form(...),
+    password: str = Form(...),
+    password_confirm: str = Form(...),
+    admin: User = Depends(get_admin_user),
+    db: Session = Depends(get_db)
+):
+    """Create a new non-admin user from admin panel"""
+    del admin  # dependency ensures admin permission
+
+    email = email.lower().strip()
+
+    # Enforce max user limit for non-admin accounts
+    user_count = db.query(User).filter(User.is_admin == False).count()
+    if user_count >= settings.MAX_USERS:
+        msg = quote("Maximum users reached")
+        return RedirectResponse(url=f"/admin/users?error={msg}", status_code=302)
+
+    if password != password_confirm:
+        msg = quote("Passwords do not match")
+        return RedirectResponse(url=f"/admin/users?error={msg}", status_code=302)
+
+    if len(password) < 6:
+        msg = quote("Password must be at least 6 characters")
+        return RedirectResponse(url=f"/admin/users?error={msg}", status_code=302)
+
+    existing = db.query(User).filter(User.email == email).first()
+    if existing:
+        msg = quote("Email already registered")
+        return RedirectResponse(url=f"/admin/users?error={msg}", status_code=302)
+
+    user = User(
+        email=email,
+        password_hash=hash_password(password),
+        is_admin=False,
+        is_active=True
+    )
+    db.add(user)
+    db.commit()
+
+    return RedirectResponse(url="/admin/users?created=true", status_code=302)
 
 
 @router.post("/users/{user_id}/toggle")

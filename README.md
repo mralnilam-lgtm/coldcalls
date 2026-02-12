@@ -128,7 +128,7 @@ O worker processa campanhas com status "running" a cada 10 segundos.
 
 ### 3. Usuarios
 
-1. Usuarios se registram em `/auth/register` (max 4 usuarios)
+1. Admin cria usuarios em `/admin/users` (max 4 usuarios)
 2. Configuram credenciais Twilio em `/dashboard/settings`
 3. Adicionam creditos via deposito USDT em `/payments/deposit`
 
@@ -144,7 +144,7 @@ O worker processa campanhas com status "running" a cada 10 segundos.
 
 ### Autenticacao
 - `GET/POST /auth/login` - Login
-- `GET/POST /auth/register` - Registro
+- `GET/POST /auth/register` - Desabilitado (redireciona para login)
 - `GET /auth/logout` - Logout
 
 ### Dashboard

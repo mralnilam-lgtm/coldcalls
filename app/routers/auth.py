@@ -1,12 +1,12 @@
 """
 Authentication Router - Login, Register, Logout
 """
-from fastapi import APIRouter, Depends, Form, Request, HTTPException
+from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
-from app.auth import create_access_token, hash_password, verify_password
+from app.auth import create_access_token, verify_password
 from app.config import get_settings
 from app.database import get_db
 from app.dependencies import get_current_user_optional
@@ -20,7 +20,7 @@ settings = get_settings()
 @router.get("/login", response_class=HTMLResponse)
 async def login_page(
     request: Request,
-    registered: bool = False,
+    registration: str = "",
     user: User = Depends(get_current_user_optional)
 ):
     """Display login page"""
@@ -31,7 +31,7 @@ async def login_page(
         "auth/login.html",
         {
             "request": request,
-            "registered": registered,
+            "registration_disabled": registration == "disabled",
             "error": None
         }
     )
@@ -53,7 +53,7 @@ async def login(
             {
                 "request": request,
                 "error": "Invalid email or password",
-                "registered": False
+                "registration_disabled": False
             },
             status_code=400
         )
@@ -64,7 +64,7 @@ async def login(
             {
                 "request": request,
                 "error": "Your account has been disabled",
-                "registered": False
+                "registration_disabled": False
             },
             status_code=403
         )
@@ -87,99 +87,22 @@ async def login(
 
 @router.get("/register", response_class=HTMLResponse)
 async def register_page(
-    request: Request,
-    db: Session = Depends(get_db),
+    _request: Request,
     user: User = Depends(get_current_user_optional)
 ):
-    """Display registration page"""
+    """Public registration is disabled; admin creates users"""
     if user:
         return RedirectResponse(url="/dashboard", status_code=302)
 
-    # Check user limit
-    user_count = db.query(User).filter(User.is_admin == False).count()
-    registration_closed = user_count >= settings.MAX_USERS
-
-    return templates.TemplateResponse(
-        "auth/register.html",
-        {
-            "request": request,
-            "error": None,
-            "registration_closed": registration_closed
-        }
-    )
+    return RedirectResponse(url="/auth/login?registration=disabled", status_code=302)
 
 
 @router.post("/register")
 async def register(
-    request: Request,
-    email: str = Form(...),
-    password: str = Form(...),
-    password_confirm: str = Form(...),
-    db: Session = Depends(get_db)
+    _request: Request
 ):
-    """Process registration form"""
-    # Check user limit
-    user_count = db.query(User).filter(User.is_admin == False).count()
-    if user_count >= settings.MAX_USERS:
-        return templates.TemplateResponse(
-            "auth/register.html",
-            {
-                "request": request,
-                "error": "Registration is closed - maximum users reached",
-                "registration_closed": True
-            },
-            status_code=400
-        )
-
-    # Validate passwords match
-    if password != password_confirm:
-        return templates.TemplateResponse(
-            "auth/register.html",
-            {
-                "request": request,
-                "error": "Passwords do not match",
-                "registration_closed": False
-            },
-            status_code=400
-        )
-
-    # Validate password length
-    if len(password) < 6:
-        return templates.TemplateResponse(
-            "auth/register.html",
-            {
-                "request": request,
-                "error": "Password must be at least 6 characters",
-                "registration_closed": False
-            },
-            status_code=400
-        )
-
-    # Check existing email
-    email = email.lower().strip()
-    existing = db.query(User).filter(User.email == email).first()
-    if existing:
-        return templates.TemplateResponse(
-            "auth/register.html",
-            {
-                "request": request,
-                "error": "Email already registered",
-                "registration_closed": False
-            },
-            status_code=400
-        )
-
-    # Create user
-    user = User(
-        email=email,
-        password_hash=hash_password(password),
-        is_admin=False,
-        is_active=True
-    )
-    db.add(user)
-    db.commit()
-
-    return RedirectResponse(url="/auth/login?registered=true", status_code=302)
+    """Public registration is disabled; admin creates users"""
+    return RedirectResponse(url="/auth/login?registration=disabled", status_code=302)
 
 
 @router.get("/logout")

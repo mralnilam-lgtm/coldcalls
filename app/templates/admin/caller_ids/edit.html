@@ -13,7 +13,7 @@
     {% endif %}
 
     <div class="bg-white shadow rounded-lg">
-        <form action="/admin/caller-ids/{{ caller_id.id }}/edit" method="POST" class="px-4 py-5 sm:px-6 space-y-4">
+        <form id="edit-caller-id-form" action="/admin/caller-ids/{{ caller_id.id }}/edit" method="POST" class="px-4 py-5 sm:px-6 space-y-4">
             <div>
                 <label for="phone_number" class="block text-sm font-medium text-gray-700">Phone Number</label>
                 <input type="text" name="phone_number" id="phone_number" required pattern="^\+[1-9]\d{1,14}$"
@@ -42,15 +42,14 @@
             </div>
 
             <div class="flex justify-between pt-4">
-                <form action="/admin/caller-ids/{{ caller_id.id }}/delete" method="POST" onsubmit="return confirm('Are you sure?')">
-                    <button type="submit" class="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-900">Delete</button>
-                </form>
+                <button type="submit" form="delete-caller-id-form" class="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-900">Delete</button>
                 <div class="space-x-3">
                     <a href="/admin/caller-ids" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">Cancel</a>
                     <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Save</button>
                 </div>
             </div>
         </form>
+        <form id="delete-caller-id-form" action="/admin/caller-ids/{{ caller_id.id }}/delete" method="POST" onsubmit="return confirm('Are you sure?')"></form>
     </div>
 </div>
 {% endblock %}
