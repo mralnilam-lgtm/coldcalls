@@ -75,7 +75,7 @@ app.include_router(api.router)
 async def root():
     """Redirect to dashboard or login"""
     from fastapi.responses import RedirectResponse
-    return RedirectResponse(url="/dashboard")
+    return RedirectResponse(url="/auth/login")
 
 
 @app.get("/health")
