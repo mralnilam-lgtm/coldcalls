@@ -15,6 +15,12 @@ from app.database import get_db
 from app.dependencies import get_admin_user
 from app.models import User, CallerID, Country, Audio, Campaign, Payment, PaymentStatus
 from app.services.r2_service import r2_service
+from app.services.system_settings_service import (
+    TWILIO_ACCOUNT_SID_KEY,
+    TWILIO_AUTH_TOKEN_KEY,
+    get_twilio_credentials,
+    upsert_setting,
+)
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 templates = Jinja2Templates(directory="app/templates")
@@ -24,10 +30,14 @@ settings = get_settings()
 @router.get("", response_class=HTMLResponse)
 async def admin_dashboard(
     request: Request,
+    twilio_saved: bool = False,
+    error: Optional[str] = None,
     user: User = Depends(get_admin_user),
     db: Session = Depends(get_db)
 ):
     """Admin dashboard"""
+    twilio_sid, twilio_token = get_twilio_credentials(db)
+
     stats = {
         "total_users": db.query(User).filter(User.is_admin == False).count(),
         "total_campaigns": db.query(Campaign).count(),
@@ -42,9 +52,41 @@ async def admin_dashboard(
         {
             "request": request,
             "user": user,
-            "stats": stats
+            "stats": stats,
+            "twilio_saved": twilio_saved,
+            "error": error,
+            "twilio_account_sid": twilio_sid,
+            "twilio_configured": bool(twilio_sid and twilio_token),
         }
     )
+
+
+@router.post("/settings/twilio")
+async def save_twilio_settings(
+    account_sid: str = Form(...),
+    auth_token: str = Form(...),
+    user: User = Depends(get_admin_user),
+    db: Session = Depends(get_db)
+):
+    """Update global Twilio credentials from admin dashboard."""
+    del user  # dependency ensures admin permission
+
+    account_sid = account_sid.strip()
+    auth_token = auth_token.strip()
+
+    if not account_sid.startswith("AC") or len(account_sid) != 34:
+        msg = quote("Invalid Account SID format")
+        return RedirectResponse(url=f"/admin?error={msg}", status_code=302)
+
+    if not auth_token:
+        msg = quote("Auth Token cannot be empty")
+        return RedirectResponse(url=f"/admin?error={msg}", status_code=302)
+
+    upsert_setting(db, TWILIO_ACCOUNT_SID_KEY, account_sid)
+    upsert_setting(db, TWILIO_AUTH_TOKEN_KEY, auth_token)
+    db.commit()
+
+    return RedirectResponse(url="/admin?twilio_saved=true", status_code=302)
 
 
 # ============== CallerID CRUD ==============

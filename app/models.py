@@ -199,3 +199,15 @@ class Payment(Base):
 
     def __repr__(self):
         return f"<Payment {self.tx_hash[:10]}...>"
+
+
+class SystemSetting(Base):
+    __tablename__ = "system_settings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    key = Column(String(100), unique=True, nullable=False, index=True)
+    value = Column(Text, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<SystemSetting {self.key}>"

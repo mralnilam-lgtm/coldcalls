@@ -122,14 +122,15 @@ O worker processa campanhas com status "running" a cada 10 segundos.
 ### 2. Configuracao Admin
 
 1. Acesse `/admin`
-2. Adicione **Paises** com precos por minuto
-3. Adicione **Caller IDs** (numeros de origem)
-4. Faca upload de **Audios** para o R2
+2. Configure credenciais **Twilio** globais
+3. Adicione **Paises** com precos por minuto
+4. Adicione **Caller IDs** (numeros de origem)
+5. Faca upload de **Audios** para o R2
 
 ### 3. Usuarios
 
 1. Admin cria usuarios em `/admin/users` (max 4 usuarios)
-2. Configuram credenciais Twilio em `/dashboard/settings`
+2. Configuram numero de transferencia em `/dashboard/settings`
 3. Adicionam creditos via deposito USDT em `/payments/deposit`
 
 ### 4. Campanhas
@@ -149,7 +150,7 @@ O worker processa campanhas com status "running" a cada 10 segundos.
 
 ### Dashboard
 - `GET /dashboard` - Dashboard principal
-- `GET/POST /dashboard/settings` - Configuracoes Twilio
+- `GET/POST /dashboard/settings` - Configuracoes de transferencia (3CX)
 
 ### Campanhas
 - `GET /campaigns` - Listar campanhas

@@ -8,10 +8,10 @@ from typing import Optional
 
 from twilio.rest import Client
 
-from app.config import get_settings
+from app.database import SessionLocal
+from app.services.system_settings_service import get_twilio_credentials
 
 logger = logging.getLogger(__name__)
-settings = get_settings()
 
 
 class TwilioService:
@@ -21,11 +21,17 @@ class TwilioService:
         """
         Initialize Twilio client with global credentials from settings
         """
-        if not settings.TWILIO_ACCOUNT_SID or not settings.TWILIO_AUTH_TOKEN:
-            raise ValueError("Twilio credentials not configured in environment")
+        db = SessionLocal()
+        try:
+            sid, token = get_twilio_credentials(db)
+        finally:
+            db.close()
 
-        self.account_sid = settings.TWILIO_ACCOUNT_SID
-        self.auth_token = settings.TWILIO_AUTH_TOKEN
+        if not sid or not token:
+            raise ValueError("Twilio credentials not configured")
+
+        self.account_sid = sid
+        self.auth_token = token
         self.client = Client(self.account_sid, self.auth_token)
 
     def make_call(
@@ -174,5 +180,3 @@ class TwilioService:
         except Exception as e:
             logger.error(f"Error fetching call details for {call_sid}: {e}")
             return None
-
-
