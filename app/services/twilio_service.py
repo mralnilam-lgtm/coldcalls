@@ -5,6 +5,7 @@ Handles call initiation, status polling, and machine detection
 import time
 import logging
 from typing import Optional
+from urllib.parse import urlparse
 
 from twilio.rest import Client
 
@@ -35,6 +36,14 @@ class TwilioService:
         self.account_sid = sid
         self.auth_token = token
         self.client = Client(self.account_sid, self.auth_token)
+        self.base_url = settings.BASE_URL.rstrip("/")
+
+        parsed_base_url = urlparse(self.base_url)
+        host = (parsed_base_url.hostname or "").lower()
+        if not parsed_base_url.scheme or not host:
+            raise ValueError("BASE_URL is invalid. Set a public URL (e.g., https://your-domain.com).")
+        if host in {"localhost", "127.0.0.1"} or host.endswith(".local"):
+            raise ValueError("BASE_URL points to localhost. Twilio requires a public URL for /api/twiml callbacks.")
 
     def make_call(
         self,
@@ -57,7 +66,7 @@ class TwilioService:
         """
         logger.info(f"Initiating call to {to_number} from {from_number}")
 
-        twiml_url = f"{settings.BASE_URL.rstrip('/')}/api/twiml/{campaign_id}"
+        twiml_url = f"{self.base_url}/api/twiml/{campaign_id}"
 
         call = self.client.calls.create(
             to=to_number,
