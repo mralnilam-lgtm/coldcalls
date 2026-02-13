@@ -127,6 +127,7 @@ class CampaignWorker:
         """Process a single number in a campaign"""
         user = campaign.user
         caller_id = campaign.caller_id
+        audio = campaign.audio
         country = campaign.country
 
         logger.info(f"Calling {number.phone_number} for campaign {campaign.id}")
@@ -136,11 +137,12 @@ class CampaignWorker:
         self.db.flush()
 
         try:
-            # Make the call using dynamic TwiML endpoint
+            # Make the call with inline TwiML (plays audio then transfers)
             call_result = twilio_service.make_call(
                 to_number=number.phone_number,
                 from_number=caller_id.phone_number,
-                campaign_id=campaign.id
+                audio_url=audio.r2_url,
+                transfer_number=user.transfer_number
             )
 
             number.call_sid = call_result['call_sid']

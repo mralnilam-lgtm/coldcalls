@@ -64,15 +64,16 @@ async def twiml_handler(
     # Log the request for debugging
     logger.info(f"TwiML request for campaign {campaign_id}: AnsweredBy={answered_by}")
 
-    # Transfer only when AMD clearly identifies a human.
-    # Any other value (machine_*, fax, unknown, empty) hangs up.
-    if answered_by != "human":
-        logger.info(f"Campaign {campaign_id}: Non-human detection ({answered_by}), hanging up")
+    # Check if answered by machine (any machine_* value)
+    if answered_by.startswith("machine") or answered_by == "fax":
+        # Machine/voicemail/fax detected - hang up
+        logger.info(f"Campaign {campaign_id}: Machine detected ({answered_by}), hanging up")
         twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Hangup/></Response>'
     else:
-        # Human answered: play campaign audio, then transfer to 3CX.
+        # Human answered (or unknown - treat as human to not miss calls)
+        # Play the campaign audio, then transfer to 3CX
         audio_url = campaign.audio.r2_url
-        logger.info(f"Campaign {campaign_id}: Human detected, playing audio and transferring to {transfer_number}")
+        logger.info(f"Campaign {campaign_id}: Human/unknown ({answered_by}), playing audio and transferring to {transfer_number}")
         twiml = f'''<?xml version="1.0" encoding="UTF-8"?>
 <Response>
     <Play>{audio_url}</Play>

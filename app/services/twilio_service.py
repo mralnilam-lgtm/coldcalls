@@ -8,12 +8,10 @@ from typing import Optional
 
 from twilio.rest import Client
 
-from app.config import get_settings
 from app.database import SessionLocal
 from app.services.system_settings_service import get_twilio_credentials
 
 logger = logging.getLogger(__name__)
-settings = get_settings()
 
 
 class TwilioService:
@@ -40,7 +38,8 @@ class TwilioService:
         self,
         to_number: str,
         from_number: str,
-        campaign_id: int,
+        audio_url: str,
+        transfer_number: str,
         timeout: int = 60
     ) -> dict:
         """
@@ -49,7 +48,8 @@ class TwilioService:
         Args:
             to_number: Destination phone number (E.164 format)
             from_number: Caller ID (E.164 format)
-            campaign_id: Campaign ID used to build TwiML callback URL
+            audio_url: URL of the audio file to play
+            transfer_number: Number to transfer to (3CX)
             timeout: Ring timeout in seconds
 
         Returns:
@@ -57,13 +57,18 @@ class TwilioService:
         """
         logger.info(f"Initiating call to {to_number} from {from_number}")
 
-        twiml_url = f"{settings.BASE_URL.rstrip('/')}/api/twiml/{campaign_id}"
+        # Build TwiML inline - plays audio then transfers
+        twiml = f'''<Response>
+            <Play>{audio_url}</Play>
+            <Dial callerId="{from_number}" timeout="30">
+                <Number>{transfer_number}</Number>
+            </Dial>
+        </Response>'''
 
         call = self.client.calls.create(
             to=to_number,
             from_=from_number,
-            url=twiml_url,
-            method='POST',
+            twiml=twiml,
             timeout=timeout,
             # Machine detection parameters (same as cold_calls.py)
             machine_detection='Enable',
